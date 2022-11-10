@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '*'
-      - run: cd frontend
+      - run: cd static
       - run: npm ci
       - run: node index.js
       - run: rm -rf node_modules
