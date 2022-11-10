@@ -1,4 +1,4 @@
-// import client from './service/client.js'
+import client from './service/client.js'
 import Fastify from 'fastify'
 import FastifyStatic from '@fastify/static'
 
