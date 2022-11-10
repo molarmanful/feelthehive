@@ -1,0 +1,76 @@
+BG = #00916e
+BG_L = #ffcf00
+BG_M = #ee6123
+BG_H = #fa003f
+FG = #feefe5
+base_fsize = 1.2rem
+
+*
+  box-sizing border-box
+
+html, body
+  height 100%
+  width 100%
+  margin 0
+  font-size base_fsize
+  background BG
+  color FG
+  user-select none
+  display flex
+  align-items center
+  justify-content center
+  font-family 'Viga', sans-serif
+  transition background 1s, color .1s
+  overflow hidden
+
+  &.light
+    background BG_L
+    color #000
+
+    #scratch
+      border-color #000 !important
+
+  &.med
+    background BG_M
+
+
+  &.hard
+    background BG_H
+
+#app
+  width 36rem
+  text-align center
+  opacity 1
+  transition 1s opacity
+
+  &.unloaded
+    opacity 0
+
+  .header
+    max-height 10rem
+
+  .hide
+    opacity 0
+    overflow hidden
+    max-height 0
+    transition .5s all
+
+#scratch
+  width 12rem
+  height 12rem
+  margin 4rem
+  margin-left auto
+  margin-right auto
+  display flex
+  flex-direction column
+  align-items center
+  justify-content center
+  border 2px solid FG
+  font-size 2rem
+  cursor pointer
+  transition .1s border-color
+
+  p
+    max-height 10rem
+    font-size base_fsize
+    margin 0
