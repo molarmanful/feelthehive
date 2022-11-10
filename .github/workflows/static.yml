@@ -34,10 +34,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '*'
-      - run: cd static
-      - run: npm ci
-      - run: node index.js
-      - run: rm -rf node_modules
+      - run: cd static && npm ci && node index.js && rm -rf node_modules
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
