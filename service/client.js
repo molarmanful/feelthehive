@@ -10,4 +10,5 @@ let packDef = protoLoader.loadSync('./protobuf/hive.proto', {
 })
 let Hive = grpc.loadPackageDefinition(packDef).Hive
 
-export default new Hive('localhost:50051', grpc.credentials.createInsecure())
+let port = process.env.PORT || 50051
+export default new Hive('localhost:' + port, grpc.credentials.createInsecure())

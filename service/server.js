@@ -28,7 +28,7 @@ server.addService(hiveProto.Hive.service, {
   },
 
   delUser(_, cb) {
-    info.size--
+    if (info.size > 0) info.size--
     cb(null, info)
   },
 
@@ -39,7 +39,8 @@ server.addService(hiveProto.Hive.service, {
 
 })
 
-server.bindAsync('localhost:50051', grpc.ServerCredentials.createInsecure(), (err, port) => {
-  console.log('localhost:50051')
+let port = process.env.PORT || 50051
+server.bindAsync('localhost:' + port, grpc.ServerCredentials.createInsecure(), (err, port) => {
+  console.log('localhost:' + port)
   server.start()
 })
