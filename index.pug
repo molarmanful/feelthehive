@@ -2,7 +2,7 @@ doctype html
 html
   head
     meta(charset='utf-8')
-    meta(name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=0')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
     title FEEL THE HIVE
     link(rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Viga&display=swap')
     link(rel='stylesheet' href='https://csshake.surge.sh/csshake.min.css')
@@ -12,7 +12,7 @@ html
     #app.unloaded
       .header(:class='{hide: clicked}')
         h1 Welcome, stranger!
-        h3 There's a person on the other side of the internet who needs you to scratch their back.
+        p There's a person on the other side of the internet who needs you to scratch their back.
       #scratch.shake-constant(
         :class='{"shake-little": power >= 20 && power < 50, "shake": power >= 50 && power < 70, "shake-hard": power >= 70 && power < 90, "shake-crazy": power >= 90}'
         @click='scratch')
