@@ -1,0 +1,24 @@
+{
+  "name": "feelthehive",
+  "version": "0.0.0",
+  "description": "A people-powered Internet backscratcher.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/molarmanful/feelthehive.git"
+  },
+  "author": "Ben Pang (@molarmanful)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/molarmanful/feelthehive/issues"
+  },
+  "homepage": "https://github.com/molarmanful/feelthehive#readme",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.7.3",
+    "@grpc/proto-loader": "^0.7.3"
+  }
+}
