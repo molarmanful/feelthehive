@@ -4,8 +4,7 @@ import FastifyWS from '@fastify/websocket'
 import FastifyStatic from '@fastify/static'
 
 let server = Fastify({ logger: true })
-
-server.register(FastifyWS)
+await server.register(FastifyWS)
 server.register(FastifyStatic, {
   root: new URL('.', import.meta.url).pathname + '/public',
 })
