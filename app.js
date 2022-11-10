@@ -12,14 +12,6 @@ server.get('/', (req, res) => {
   res.sendFile('index.html')
 })
 
-let port = process.env.PORT || 7070
-server.listen({ port }, (err, addr) => {
-  if (err) {
-    server.log.error(err)
-    process.exit(1)
-  }
-})
-
 server.get('/add', (req, res) => {
   client.addUser({}, (err, info) => {
     res.send(info)
@@ -36,4 +28,12 @@ server.get('/click', (req, res) => {
   client.sendClick({}, (err, info) => {
     res.send(info)
   })
+})
+
+let port = process.env.PORT || 8080
+server.listen({ port }, (err, addr) => {
+  if (err) {
+    server.log.error(err)
+    process.exit(1)
+  }
 })
