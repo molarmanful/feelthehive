@@ -30,8 +30,7 @@ server.get('/click', (req, res) => {
   })
 })
 
-let port = process.env.PORT || 8080
-server.listen({ port }, (err, addr) => {
+server.listen({ port: 8080 }, (err, addr) => {
   if (err) {
     server.log.error(err)
     process.exit(1)
