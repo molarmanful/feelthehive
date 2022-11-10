@@ -48,7 +48,8 @@ Vue.createApp({
       }, 10)
     },
 
-    scratch() {
+    scratch(e) {
+      if (e != void 0) e.preventDefault()
       if (!this.clicked) this.clicked = true
       this.spoofSend()
     },
