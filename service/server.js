@@ -1,7 +1,7 @@
 import grpc from '@grpc/grpc-js'
 import protoLoader from '@grpc/proto-loader'
 
-let packDef = protoLoader.loadSync('./protobuf/hive.proto', {
+let packDef = protoLoader.loadSync(new URL('.', import.meta.url).pathname + '/proto/hive.proto', {
   keepCase: true,
   longs: String,
   enums: String,
@@ -39,8 +39,7 @@ server.addService(hiveProto.Hive.service, {
 
 })
 
-let port = process.env.PORT || 50051
-server.bindAsync('localhost:' + port, grpc.ServerCredentials.createInsecure(), (err, port) => {
-  console.log('localhost:' + port)
+server.bindAsync('localhost:9090', grpc.ServerCredentials.createInsecure(), (err, port) => {
+  console.log('localhost:9090')
   server.start()
 })
