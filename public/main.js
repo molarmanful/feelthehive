@@ -4,7 +4,6 @@ Vue.createApp({
 
   data: _ => ({
     power: 0,
-    pow: 0,
     clients: 0,
     clicked: false,
   }),
@@ -15,14 +14,25 @@ Vue.createApp({
       ws.close()
     }
     ws = new WebSocket(`ws://${window.location.host}/ws`)
+
     ws.onopen = _ => {
       console.log('opened')
       app.classList.remove('unloaded')
       this.initAll()
     }
-    ws.onmessage = msg => {
-      console.log(msg)
+
+    ws.onmessage = async ({ data }) => {
+      console.log('received ' + data)
+      let d = JSON.parse(data)
+      this.power = d.pow
+      this.clients = d.size
+      document.body.className =
+        this.power >= 70 ? 'hard'
+          : this.power >= 50 ? 'med'
+            : this.power >= 20 ? 'light'
+              : ''
     }
+
     ws.onclose = _ => {
       console.log('closed')
       ws = null
