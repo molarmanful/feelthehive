@@ -15,7 +15,6 @@ let info = {
   pow: 0,
   size: 0,
 }
-let pinfo = structuredClone(info)
 
 let shoutInfo = conn => {
   console.log(info)
@@ -38,9 +37,7 @@ server.get('/ws', { websocket: true }, (conn, req) => {
   shoutUser(conn)
 
   setInterval(_ => {
-    if (info.pow != pinfo.pow || info.size != pinfo.size)
-      shoutInfo(conn)
-    pinfo = structuredClone(info)
+    shoutInfo(conn)
   }, 10)
 
   conn.socket.on('message', msg => {
