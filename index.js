@@ -11,10 +11,15 @@ server.register(FastifyStatic, {
 })
 
 let ring = new Ring()
-let info = {
+let info = new Proxy({
   pow: 0,
-  size: 0,
-}
+  size: 0
+}, {
+  set(t, k, v) {
+    t[k] = v
+    return true
+  }
+})
 
 let shoutInfo = conn => {
   console.log(info)
