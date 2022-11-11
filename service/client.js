@@ -1,7 +1,7 @@
 import grpc from '@grpc/grpc-js'
 import protoLoader from '@grpc/proto-loader'
 
-let packDef = protoLoader.loadSync(new URL('.', import.meta.url).pathname + '/proto/hive.proto', {
+let packDef = protoLoader.loadSync(new URL('./proto/hive.proto', import.meta.url).pathname, {
   keepCase: true,
   longs: String,
   enums: String,
