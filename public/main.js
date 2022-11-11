@@ -13,7 +13,11 @@ Vue.createApp({
       ws.onerror = ws.onopen = ws.onclose = null
       ws.close()
     }
-    ws = new WebSocket(`wss://${window.location.host}/ws`)
+    try {
+      ws = new WebSocket(`wss://${window.location.host}/ws`)
+    } catch (e) {
+      ws = new WebSocket(`ws://${window.location.host}/ws`)
+    }
 
     ws.onopen = _ => {
       console.log('opened')
