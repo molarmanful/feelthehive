@@ -1,3 +1,4 @@
+import Emitter from 'events'
 import Fastify from 'fastify'
 import FastifyWS from '@fastify/websocket'
 import FastifyStatic from '@fastify/static'
@@ -11,18 +12,21 @@ server.register(FastifyStatic, {
 })
 
 let ring = new Ring()
+let emit = new Emitter()
 let info = new Proxy({
   pow: 0,
   size: 0
 }, {
   set(t, k, v) {
+    let b
+    if (t[k] != v) b = 1
     t[k] = v
+    if (b) emit.emit('infochange')
     return true
   }
 })
 
 let shoutInfo = conn => {
-  console.log(info)
   conn.socket.send(JSON.stringify(info))
 }
 
@@ -41,9 +45,9 @@ server.get('/ws', { websocket: true }, (conn, req) => {
   console.log('+conn')
   shoutUser(conn)
 
-  setInterval(_ => {
+  emit.on('infochange', _ => {
     shoutInfo(conn)
-  }, 10)
+  })
 
   conn.socket.on('message', msg => {
     if (msg == 'scratch') {
