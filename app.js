@@ -1,5 +1,5 @@
 import client from './service/client.js'
-import Fastify from 'fastify'
+import Fastify, { fastify } from 'fastify'
 import FastifyWS from '@fastify/websocket'
 import FastifyStatic from '@fastify/static'
 
@@ -9,29 +9,27 @@ server.register(FastifyStatic, {
   root: new URL('.', import.meta.url).pathname + '/public',
 })
 
+let shoutInfo = conn => (err, info) => {
+}
+
+let shoutUser = conn => {
+  client.setUser({ x: server.websocketServer.clients.size }, shoutInfo(conn))
+}
+
 server.get('/ws', { websocket: true }, (conn, req) => {
+  console.log('+conn')
+  shoutUser(conn)
   conn.socket.on('message', msg => {
     console.log(msg)
+    if (msg == 'scratch')
+      client.sendClick({}, shoutInfo)
+  })
+
+  conn.socket.on('close', _ => {
+    console.log('-conn')
+    shoutUser(conn)
   })
 })
-
-// server.get('/add', (req, res) => {
-//   client.addUser({}, (err, info) => {
-//     res.send(info)
-//   })
-// })
-// 
-// server.get('/del', (req, res) => {
-//   client.delUser({}, (err, info) => {
-//     res.send(info)
-//   })
-// })
-// 
-// server.get('/click', (req, res) => {
-//   client.sendClick({}, (err, info) => {
-//     res.send(info)
-//   })
-// })
 
 let port = process.env.PORT || 8080
 server.listen({ port }, (err, addr) => {

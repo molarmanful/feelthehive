@@ -2,6 +2,7 @@ syntax = "proto3";
 
 service Hive {
   rpc GetInfo(Empty) returns (Info) {}
+  rpc SetUser(Num) returns (Info) {}
   rpc AddUser(Empty) returns (Info) {}
   rpc DelUser(Empty) returns (Info) {}
   rpc SendClick(Empty) returns (Info) {}
@@ -11,5 +12,7 @@ message Info {
   int32 pow = 1;
   int32 size = 2;
 }
+
+message Num { int32 x = 1; }
 
 message Empty {}

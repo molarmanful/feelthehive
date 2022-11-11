@@ -44,6 +44,11 @@ server.addService(hiveProto.Hive.service, {
     cb(null, info)
   },
 
+  setUser(num, cb) {
+    info.size = num.x
+    cb(null, info)
+  },
+
   addUser(_, cb) {
     info.size++
     cb(null, info)
