@@ -1,6 +1,6 @@
 #include "MyServo.h"
 
-MyServo servo(13);
+MyServo servos[] = {12, 13, 14, 15};
 
 void setup() {
   Serial.begin(115200);
@@ -8,18 +8,20 @@ void setup() {
   ESP32PWM::allocateTimer(1);
   ESP32PWM::allocateTimer(2);
   ESP32PWM::allocateTimer(3);
-  servo.init();
+  for (auto& servo : servos) {
+    servo.init();
+    Serial.println(servo.pin);
+  }
 }
 
 void loop() {
-  while (servo.pos < 180) {
-    servo.inc();
-    Serial.println(servo.pos);
-    delay(15);
+  // for (auto& servo : servos) servo.servo.write(0);
+  while (servos[0].pos < 135) {
+    for (auto& servo : servos) servo.inc();
+    delay(10);
   }
-  while (servo.pos > 0) {
-    servo.dec();
-    Serial.println(servo.pos);
-    delay(15);
+  while (servos[0].pos > 45) {
+    for (auto& servo : servos) servo.dec();
+    delay(10);
   }
 }

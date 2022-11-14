@@ -11,8 +11,8 @@ class MyServo {
 
   void init() {
     servo.setPeriodHertz(50);
+    servo.attach(pin);
     servo.write(0);
-    servo.attach(pin, 1000, 2000);
   }
 
   void inc(int n = 1) {
