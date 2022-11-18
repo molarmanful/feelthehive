@@ -21,7 +21,7 @@ Vue.createApp({
       this.initAll()
     }
 
-    ws.onmessage = async ({ data }) => {
+    ws.onmessage = ({ data }) => {
       console.log('received ' + data)
       let d = JSON.parse(data)
       this.power = d.pow
@@ -42,9 +42,7 @@ Vue.createApp({
   methods: {
 
     initAll() {
-      addEventListener('keypress', e => {
-        if (e.key == ' ') this.scratch()
-      })
+      ['click', 'keypress'].map(x => addEventListener(x, e => { this.scratch() }))
     },
 
     scratch(e) {

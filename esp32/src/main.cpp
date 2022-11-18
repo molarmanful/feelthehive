@@ -1,6 +1,6 @@
 #include "MyServo.h"
 
-MyServo servos[] = {12, 13, 14, 15};
+MyServo servos[] = {12, 13, 14, 15, 18, 19};
 
 void setup() {
   Serial.begin(115200);
