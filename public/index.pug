@@ -11,8 +11,8 @@ html
   body
     #app.unloaded
       .header(:class='{hide: clicked}')
-        h1 Welcome, stranger!
-        p There's a person on the other side of the internet who needs you to scratch their back.
+        h1 Welcome!
+        p Someone on the other side of the internet needs you to scratch their back.
       #scratch.shake-constant(:class='{"shake-little": power >= 20 && power < 50, "shake": power >= 50 && power < 70, "shake-hard": power >= 70 && power < 90, "shake-crazy": power >= 90}')
         p(:class='{hide: clicked}') Tap Screen/Mash Keyboard to
         |SCRATCH

@@ -6,6 +6,7 @@ Vue.createApp({
     power: 0,
     clients: 0,
     clicked: false,
+    cdown: false,
   }),
 
   mounted() {
@@ -42,7 +43,9 @@ Vue.createApp({
   methods: {
 
     initAll() {
-      ['click', 'keypress'].map(x => document.addEventListener(x, e => { this.scratch() }))
+      ['click', 'keypress'].map(x => document.addEventListener(x, e => {
+        if (!cdown) this.scratch()
+      }))
     },
 
     scratch(e) {
@@ -55,6 +58,8 @@ Vue.createApp({
       if (e != void 0) e.preventDefault()
       if (!this.clicked) this.clicked = true
       ws.send('scratch')
+      this.cdown = true
+      setTimeout(_ => this.cdown = false, 10)
     },
 
   },
