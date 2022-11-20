@@ -43,9 +43,12 @@ Vue.createApp({
   methods: {
 
     initAll() {
-      ['click', 'keypress'].map(x => document.addEventListener(x, e => {
+      document.addEventListener('click', e => {
         if (!this.cdown) this.scratch()
-      }))
+      })
+      document.addEventListener('keypress', e => {
+        if (e.key == ' ' && !this.cdown) this.scratch()
+      })
     },
 
     scratch(e) {
