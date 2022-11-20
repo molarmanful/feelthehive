@@ -42,12 +42,14 @@ Vue.createApp({
   methods: {
 
     initAll() {
-      ['click', 'keypress'].map(x => addEventListener(x, e => { this.scratch() }))
+      ['click', 'keypress'].map(x => document.addEventListener(x, e => { this.scratch() }))
     },
 
     scratch(e) {
       if (!ws) {
         console.error('socket disconnected')
+        alert('Disconnected from server, page will now reload.')
+        location.reload()
         return
       }
       if (e != void 0) e.preventDefault()
