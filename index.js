@@ -3,7 +3,6 @@ import Fastify from 'fastify'
 import FastifyWS from '@fastify/websocket'
 import FastifyStatic from '@fastify/static'
 import Ring from './ext/ring.js'
-import './ext/compile.js'
 
 let server = Fastify({ logger: true })
 await server.register(FastifyWS)
