@@ -4,7 +4,7 @@ on: push
 
 jobs:
   publish:
-    name: Push Docker image to Docker Hub
+    name: docker + fly
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
