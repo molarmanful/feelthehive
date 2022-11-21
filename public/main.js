@@ -1,4 +1,5 @@
 let ws
+let actx = new AudioContext()
 
 Vue.createApp({
 
@@ -14,7 +15,7 @@ Vue.createApp({
       ws.onerror = ws.onopen = ws.onclose = null
       ws.close()
     }
-    ws = new WebSocket(`wss://${window.location.host}/ws`)
+    ws = new WebSocket(`${location.protocol == 'https:' ? 'wss' : 'ws'}://${location.host}/ws`)
 
     ws.onopen = _ => {
       console.log('opened')
@@ -27,6 +28,7 @@ Vue.createApp({
       let d = JSON.parse(data)
       this.power = d.pow
       this.clients = d.size
+      this.beep(440 * 2 ** ((d.pow - 25) / 24))
       document.body.className =
         this.power >= 70 ? 'hard'
           : this.power >= 50 ? 'med'
@@ -64,6 +66,24 @@ Vue.createApp({
       this.cdown = true
       setTimeout(_ => this.cdown = false, 10)
     },
+
+    beep(f, t = 200, v = .05) {
+      return new Promise((yes, no) => {
+        try {
+          let osc = actx.createOscillator()
+          let gain = actx.createGain()
+          osc.connect(gain)
+          osc.frequency.value = f
+          osc.type = 'sine'
+          gain.connect(actx.destination)
+          gain.gain.value = v
+          gain.gain.setTargetAtTime(0, actx.currentTime, .02)
+          osc.start(actx.currentTime)
+          osc.stop(actx.currentTime + t * 0.001)
+          osc.onended = _ => { yes() }
+        } catch (e) { no(e) }
+      })
+    }
 
   },
 
