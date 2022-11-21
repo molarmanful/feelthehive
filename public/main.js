@@ -28,7 +28,7 @@ Vue.createApp({
       let d = JSON.parse(data)
       this.power = d.pow
       this.clients = d.size
-      this.beep(440 * 2 ** ((d.pow - 25) / 24))
+      this.beep(440 * 2 ** ((d.pow - 35) / 24))
       document.body.className =
         this.power >= 70 ? 'hard'
           : this.power >= 50 ? 'med'
