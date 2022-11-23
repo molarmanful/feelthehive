@@ -97,22 +97,24 @@ void onEventCB(websockets::WebsocketsEvent ev, String data) {
 }
 
 void onMessageCB(websockets::WebsocketsMessage msg) {
-  if (ready && vpow > 0) {
+  if (ready) {
     auto data = msg.data();
     Serial.println(data);
     deserializeJson(doc, data);
     auto obj = doc.as<JsonObject>();
     vpow = obj["pow"].as<int>();
-    ready = false;
-    while (servos[0].pos < 180) {
-      for (auto& servo : servos) servo.inc();
-      delay(10);
+    if (vpow > 0) {
+      ready = false;
+      while (servos[0].pos < 180) {
+        for (auto& servo : servos) servo.inc();
+        delay(10);
+      }
+      while (servos[0].pos > 0) {
+        for (auto& servo : servos) servo.dec();
+        delay(10);
+      }
+      ready = true;
     }
-    while (servos[0].pos > 0) {
-      for (auto& servo : servos) servo.dec();
-      delay(10);
-    }
-    ready = true;
   }
 }
 
