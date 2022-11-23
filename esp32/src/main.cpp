@@ -3,7 +3,8 @@
 websockets::WebsocketsClient client;
 MyServo servos[] = {12, 13, 14, 15, 2, 4, 18, 27};
 DynamicJsonDocument doc(256);
-int vpow;
+bool ready = true;
+int vpow = 0;
 
 char echo_org_ssl_ca_cert[] PROGMEM =
     "-----BEGIN CERTIFICATE-----\n"
@@ -38,13 +39,7 @@ char echo_org_ssl_ca_cert[] PROGMEM =
     "Dfvp7OOGAN6dEOM4+qR9sdjoSYKEBpsr6GtPAQw4dy753ec5\n"
     "-----END CERTIFICATE-----\n";
 
-void setup() {
-  Serial.begin(115200);
-  delay(10);
-
-  WiFi.mode(WIFI_STA);
-  WiFi.disconnect(true);
-
+void scanWifi() {
   Serial.println("Scanning...");
   int n = WiFi.scanNetworks();
   if (n == 0) {
@@ -62,7 +57,9 @@ void setup() {
       Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
     }
   }
+}
 
+void connWifi() {
   Serial.print("Connecting wifi...");
   esp_wifi_sta_wpa2_ent_set_identity((uint8_t*)EAP_ID, strlen(EAP_ID));
   esp_wifi_sta_wpa2_ent_set_username((uint8_t*)EAP_USERNAME,
@@ -77,23 +74,60 @@ void setup() {
   }
   Serial.print("\nConnected wifi @ ");
   Serial.println(WiFi.localIP());
+}
 
+void connSock() {
   client.setCACert(echo_org_ssl_ca_cert);
   Serial.println("connecting socket...");
-  bool conn = client.connect("wss://fth.fly.dev/ws");
-  if (!conn) {
-    Serial.println("ws connect failed");
-    while (1) delay(1);
+  bool conn = false;
+  while (!conn) {
+    Serial.println("ws connect failed, trying again...");
+    conn = client.connect("wss://fth.fly.dev/ws");
   }
-  Serial.println("connected socket");
-  client.onMessage([](websockets::WebsocketsMessage msg) {
+  Serial.println("socket connected");
+}
+
+void onEventCB(websockets::WebsocketsEvent ev, String data) {
+  if (ev == websockets::WebsocketsEvent::ConnectionOpened) {
+    Serial.println("socket opened");
+  } else if (ev == websockets::WebsocketsEvent::ConnectionClosed) {
+    Serial.println("socket closed");
+    connSock();
+  }
+}
+
+void onMessageCB(websockets::WebsocketsMessage msg) {
+  if (ready && vpow > 0) {
     auto data = msg.data();
     Serial.println(data);
     deserializeJson(doc, data);
     auto obj = doc.as<JsonObject>();
     vpow = obj["pow"].as<int>();
-    Serial.println(vpow);
-  });
+    ready = false;
+    while (servos[0].pos < 180) {
+      for (auto& servo : servos) servo.inc();
+      delay(10);
+    }
+    while (servos[0].pos > 0) {
+      for (auto& servo : servos) servo.dec();
+      delay(10);
+    }
+    ready = true;
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  delay(10);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect(true);
+  scanWifi();
+  connWifi();
+  connSock();
+
+  client.onEvent(onEventCB);
+  client.onMessage(onMessageCB);
 
   for (auto& servo : servos) {
     servo.init();
@@ -104,13 +138,5 @@ void setup() {
 
 void loop() {
   // for (auto& servo : servos) servo.servo.write(0);
-  while (servos[0].pos < 180) {
-    for (auto& servo : servos) servo.inc();
-    delay(10);
-  }
-  while (servos[0].pos > 0) {
-    for (auto& servo : servos) servo.dec();
-    delay(10);
-  }
   client.poll();
 }
