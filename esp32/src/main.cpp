@@ -1,7 +1,9 @@
 #include "MyServo.h"
 
 websockets::WebsocketsClient client;
-MyServo servos[] = {12, 13, 14, 15, 18, 19};
+MyServo servos[] = {12, 13, 14, 15, 2, 4, 18, 27};
+DynamicJsonDocument doc(256);
+int vpow;
 
 char echo_org_ssl_ca_cert[] PROGMEM =
     "-----BEGIN CERTIFICATE-----\n"
@@ -61,7 +63,7 @@ void setup() {
     }
   }
 
-  Serial.print("Connecting wifi");
+  Serial.print("Connecting wifi...");
   esp_wifi_sta_wpa2_ent_set_identity((uint8_t*)EAP_ID, strlen(EAP_ID));
   esp_wifi_sta_wpa2_ent_set_username((uint8_t*)EAP_USERNAME,
                                      strlen(EAP_USERNAME));
@@ -77,13 +79,21 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   client.setCACert(echo_org_ssl_ca_cert);
+  Serial.println("connecting socket...");
   bool conn = client.connect("wss://fth.fly.dev/ws");
   if (!conn) {
     Serial.println("ws connect failed");
     while (1) delay(1);
   }
-  client.onMessage(
-      [](websockets::WebsocketsMessage msg) { Serial.println(msg.data()); });
+  Serial.println("connected socket");
+  client.onMessage([](websockets::WebsocketsMessage msg) {
+    auto data = msg.data();
+    Serial.println(data);
+    deserializeJson(doc, data);
+    auto obj = doc.as<JsonObject>();
+    vpow = obj["pow"].as<int>();
+    Serial.println(vpow);
+  });
 
   for (auto& servo : servos) {
     servo.init();
@@ -94,11 +104,11 @@ void setup() {
 
 void loop() {
   // for (auto& servo : servos) servo.servo.write(0);
-  while (servos[0].pos < 135) {
+  while (servos[0].pos < 180) {
     for (auto& servo : servos) servo.inc();
     delay(10);
   }
-  while (servos[0].pos > 45) {
+  while (servos[0].pos > 0) {
     for (auto& servo : servos) servo.dec();
     delay(10);
   }
