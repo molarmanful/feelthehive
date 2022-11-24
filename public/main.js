@@ -8,13 +8,10 @@ Vue.createApp({
     clients: 0,
     clicked: false,
     cdown: false,
+    conn: false,
   }),
 
   mounted() {
-    if (ws) {
-      ws.onerror = ws.onopen = ws.onclose = null
-      ws.close()
-    }
     ws = new WebSocket(`${location.protocol == 'https:' ? 'wss' : 'ws'}://${location.host}/ws`)
 
     ws.onopen = _ => {
@@ -39,6 +36,9 @@ Vue.createApp({
     ws.onclose = _ => {
       console.log('closed')
       ws = null
+      document.removeEventListener('click')
+      document.removeEventListener('keypress')
+      this.mounted()
     }
   },
 
@@ -56,8 +56,7 @@ Vue.createApp({
     scratch(e) {
       if (!ws) {
         console.error('socket disconnected')
-        alert('Disconnected from server, page will now reload.')
-        location.reload()
+        alert('Disconnected from server, attempting to reconnect...')
         return
       }
       if (e != void 0) e.preventDefault()
