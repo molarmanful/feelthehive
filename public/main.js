@@ -50,8 +50,8 @@ Vue.createApp({
       document.addEventListener('click', e => {
         if (!this.cdown) this.scratch(e)
       })
-      document.addEventListener('keypress', e => {
-        if (e.key == ' ' && !this.cdown) this.scratch()
+      document.addEventListener('keydown', e => {
+        if (e.key == ' ' && !e.repeat && !this.cdown) this.scratch()
       })
     },
 
