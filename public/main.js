@@ -15,6 +15,7 @@ Vue.createApp({
     ws = new WebSocket(`${location.protocol == 'https:' ? 'wss' : 'ws'}://${location.host}/ws`)
 
     ws.onopen = _ => {
+      this.conn = true
       console.log('opened')
       app.classList.remove('unloaded')
       this.initAll()
@@ -34,6 +35,7 @@ Vue.createApp({
     }
 
     ws.onclose = _ => {
+      this.conn = false
       console.log('closed')
       ws = null
       document.removeEventListener('click')
