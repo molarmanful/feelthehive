@@ -3,8 +3,9 @@
 websockets::WebsocketsClient client;
 MyServo servos[] = {12, 13, 14, 15, 2, 4, 18, 27};
 DynamicJsonDocument doc(256);
-bool ready = true;
+bool busy = false;
 int vpow = 0;
+TaskHandle_t core0;
 
 char echo_org_ssl_ca_cert[] PROGMEM =
     "-----BEGIN CERTIFICATE-----\n"
@@ -97,23 +98,33 @@ void onEventCB(websockets::WebsocketsEvent ev, String data) {
 }
 
 void onMessageCB(websockets::WebsocketsMessage msg) {
-  if (ready) {
-    auto data = msg.data();
-    Serial.println(data);
-    deserializeJson(doc, data);
-    auto obj = doc.as<JsonObject>();
-    vpow = obj["pow"].as<int>();
-    if (vpow > 0) {
-      ready = false;
-      while (servos[0].pos < 180) {
-        for (auto& servo : servos) servo.inc();
-        delay(10);
-      }
-      while (servos[0].pos > 0) {
-        for (auto& servo : servos) servo.dec();
-        delay(10);
-      }
-      ready = true;
+  auto data = msg.data();
+  deserializeJson(doc, data);
+  auto obj = doc.as<JsonObject>();
+  vpow = obj["pow"].as<int>();
+  Serial.print("vpow ");
+  Serial.println(vpow);
+  if (vpow > 0) busy = true;
+}
+
+void loop0(void* params) {
+  bool dir = false;
+  while (1) {
+    if (busy) {
+      Serial.print("busy");
+      if (dir)
+        while (servos[0].pos > 0) {
+          for (auto& servo : servos) servo.dec();
+          delay(10);
+        }
+      else
+        while (servos[0].pos < 180) {
+          for (auto& servo : servos) servo.inc();
+          delay(10);
+        }
+      dir = !dir;
+      busy = false;
+      Serial.print("not busy");
     }
   }
 }
@@ -131,11 +142,9 @@ void setup() {
   client.onEvent(onEventCB);
   client.onMessage(onMessageCB);
 
-  for (auto& servo : servos) {
-    servo.init();
-    Serial.print("servo init: ");
-    Serial.println(servo.pin);
-  }
+  for (auto& servo : servos) servo.init();
+
+  xTaskCreatePinnedToCore(loop0, "loop0", 1e4, NULL, 1, &core0, 1);
 }
 
 void loop() {
