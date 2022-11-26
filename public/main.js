@@ -11,44 +11,42 @@ Vue.createApp({
     conn: false,
   }),
 
-  mounted() {
-    ws = new WebSocket(`${location.protocol == 'https:' ? 'wss' : 'ws'}://${location.host}/ws`)
-
-    ws.onopen = _ => {
-      this.conn = true
-      console.log('opened')
-      app.classList.remove('unloaded')
-      this.initAll()
-    }
-
-    ws.onmessage = ({ data }) => {
-      console.log('received ' + data)
-      let d = JSON.parse(data)
-      this.power = d.pow
-      this.clients = d.size
-      this.beep(440 * 2 ** ((d.pow - 35) / 24))
-      document.body.className =
-        this.power >= 70 ? 'hard'
-          : this.power >= 50 ? 'med'
-            : this.power >= 20 ? 'light'
-              : ''
-    }
-
-    ws.onclose = _ => {
-      this.conn = false
-      console.log('closed')
-      ws = null
-      document.removeEventListener('click', this.click_)
-      document.removeEventListener('keypress', this.keydown_)
-      this.mounted()
-    }
-  },
+  mounted() { this.initAll() },
 
   methods: {
 
     initAll() {
-      document.addEventListener('click', this.click_)
-      document.addEventListener('keydown', this.keydown_)
+      ws = new WebSocket(`${location.protocol == 'https:' ? 'wss' : 'ws'}://${location.host}/ws`)
+
+      ws.onopen = _ => {
+        this.conn = true
+        console.log('opened')
+        app.classList.remove('unloaded')
+        document.addEventListener('click', this.click_)
+        document.addEventListener('keydown', this.keydown_)
+      }
+
+      ws.onmessage = ({ data }) => {
+        console.log('received ' + data)
+        let d = JSON.parse(data)
+        this.power = d.pow
+        this.clients = d.size
+        this.beep(440 * 2 ** ((d.pow - 35) / 24))
+        document.body.className =
+          this.power >= 70 ? 'hard'
+            : this.power >= 50 ? 'med'
+              : this.power >= 20 ? 'light'
+                : ''
+      }
+
+      ws.onclose = _ => {
+        this.conn = false
+        console.log('closed')
+        ws = null
+        document.removeEventListener('click', this.click_)
+        document.removeEventListener('keypress', this.keydown_)
+        this.initAll()
+      }
     },
 
     click_(e) {
