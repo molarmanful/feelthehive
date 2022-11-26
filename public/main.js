@@ -9,6 +9,7 @@ Vue.createApp({
     clicked: false,
     cdown: false,
     conn: false,
+    pcd: null,
   }),
 
   mounted() { this.initAll() },
@@ -24,6 +25,7 @@ Vue.createApp({
         app.classList.remove('unloaded')
         document.addEventListener('click', this.click_)
         document.addEventListener('keydown', this.keydown_)
+        this.ping()
       }
 
       ws.onmessage = ({ data }) => {
@@ -37,6 +39,7 @@ Vue.createApp({
             : this.power >= 50 ? 'med'
               : this.power >= 20 ? 'light'
                 : ''
+        this.ping()
       }
 
       ws.onclose = _ => {
@@ -47,6 +50,14 @@ Vue.createApp({
         document.removeEventListener('keypress', this.keydown_)
         this.initAll()
       }
+    },
+
+    ping() {
+      clearTimeout(this.pcd)
+      this.pcd = setTimeout(_ => {
+        console.log('ping')
+        ws.send('ping')
+      }, 10000)
     },
 
     click_(e) {
