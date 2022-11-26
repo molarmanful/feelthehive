@@ -38,8 +38,8 @@ Vue.createApp({
       this.conn = false
       console.log('closed')
       ws = null
-      document.removeEventListener('click')
-      document.removeEventListener('keypress')
+      document.removeEventListener('click', this.click_)
+      document.removeEventListener('keypress', this.keydown_)
       this.mounted()
     }
   },
@@ -47,12 +47,16 @@ Vue.createApp({
   methods: {
 
     initAll() {
-      document.addEventListener('click', e => {
-        if (!this.cdown) this.scratch(e)
-      })
-      document.addEventListener('keydown', e => {
-        if (e.key == ' ' && !e.repeat && !this.cdown) this.scratch()
-      })
+      document.addEventListener('click', this.click_)
+      document.addEventListener('keydown', this.keydown_)
+    },
+
+    click_(e) {
+      if (!this.cdown) this.scratch(e)
+    },
+
+    keydown_(e) {
+      if (e.key == ' ' && !e.repeat && !this.cdown) this.scratch()
     },
 
     scratch(e) {
