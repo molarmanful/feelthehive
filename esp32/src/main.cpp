@@ -6,6 +6,8 @@ DynamicJsonDocument doc(256);
 bool busy = false;
 int vpow = 0;
 TaskHandle_t core0;
+auto ms = millis();
+auto ms1 = millis();
 
 char echo_org_ssl_ca_cert[] PROGMEM =
     "-----BEGIN CERTIFICATE-----\n"
@@ -82,23 +84,14 @@ void connWifi() {
 }
 
 void connSock() {
+  client = {};
   client.setCACert(echo_org_ssl_ca_cert);
-  Serial.println("connecting socket...");
   bool conn = false;
   while (!conn) {
-    Serial.println("ws connect failed, trying again...");
+    Serial.println("connecting socket...");
     conn = client.connect("wss://fth.fly.dev/ws");
   }
   Serial.println("socket connected");
-}
-
-void onEventCB(websockets::WebsocketsEvent ev, String data) {
-  if (ev == websockets::WebsocketsEvent::ConnectionOpened) {
-    Serial.println("socket opened");
-  } else if (ev == websockets::WebsocketsEvent::ConnectionClosed) {
-    Serial.println("socket closed");
-    connSock();
-  }
 }
 
 void onMessageCB(websockets::WebsocketsMessage msg) {
@@ -106,30 +99,42 @@ void onMessageCB(websockets::WebsocketsMessage msg) {
   deserializeJson(doc, data);
   auto obj = doc.as<JsonObject>();
   vpow = obj["pow"].as<int>();
-  Serial.print("vpow ");
+  Serial.print("pow ");
   Serial.println(vpow);
   if (vpow > 0) busy = true;
+  ms1 = millis();
+}
+
+void onEventCB(websockets::WebsocketsEvent ev, String data) {
+  if (ev == websockets::WebsocketsEvent::ConnectionOpened) {
+    Serial.println("socket opened");
+  } else if (ev == websockets::WebsocketsEvent::ConnectionClosed) {
+    Serial.println("socket closed");
+    ESP.restart();
+  }
 }
 
 void loop0(void* params) {
-  bool dir = false;
   while (1) {
     if (busy) {
-      Serial.print("busy");
-      if (dir)
-        while (servos[0].pos > 0) {
-          for (auto& servo : servos) servo.dec();
-          delay(10);
-        }
-      else
-        while (servos[0].pos < 180) {
-          for (auto& servo : servos) servo.inc();
-          delay(10);
-        }
-      dir = !dir;
+      int p1 = max(1, 5 - vpow / 5);
+      int p2 = 180 - max(0, (vpow - 50) * 9 / 5);
+      Serial.print(p1);
+      Serial.print(" ");
+      Serial.print(p2);
+      Serial.println("busy");
+      while (servos[0].pos < p2) {
+        for (auto& servo : servos) servo.inc();
+        delay(p1);
+      }
+      while (servos[0].pos > 0) {
+        for (auto& servo : servos) servo.dec();
+        delay(p1);
+      }
       busy = false;
-      Serial.print("not busy");
+      Serial.println("not busy");
     }
+    delay(1);
   }
 }
 
@@ -139,10 +144,9 @@ void setup() {
 
   WiFi.mode(WIFI_STA);
   WiFi.disconnect(true);
-  scanWifi();
+  // scanWifi();
   connWifi();
   connSock();
-
   client.onEvent(onEventCB);
   client.onMessage(onMessageCB);
 
@@ -153,5 +157,21 @@ void setup() {
 
 void loop() {
   // for (auto& servo : servos) servo.servo.write(0);
+  // if (!busy) busy = true;
+
   client.poll();
+
+  auto cms = millis();
+  if (cms - ms >= 500) {
+    ms = cms;
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("wifi disconnected");
+      ESP.restart();
+    }
+  }
+  if (cms - ms1 >= 10000) {
+    ms1 = cms;
+    Serial.println("ping");
+    client.send("ping");
+  }
 }
