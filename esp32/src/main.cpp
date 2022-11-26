@@ -63,7 +63,7 @@ void scanWifi() {
 void connWifi() {
   Serial.print("Connecting wifi...");
 #ifdef PERSONAL
-  Wifi.begin(EAP_SSID, EAP_PASSWORD);
+  WiFi.begin(EAP_SSID, EAP_PASSWORD);
 #else
   esp_wifi_sta_wpa2_ent_set_identity((uint8_t*)EAP_ID, strlen(EAP_ID));
   esp_wifi_sta_wpa2_ent_set_username((uint8_t*)EAP_USERNAME,
