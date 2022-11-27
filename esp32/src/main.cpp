@@ -3,9 +3,11 @@
 websockets::WebsocketsClient client;
 MyServo servos[] = {12, 13, 14, 15, 2, 4, 18, 27};
 DynamicJsonDocument doc(256);
+TaskHandle_t core0;
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
+
 bool busy = false;
 int vpow = 0;
-TaskHandle_t core0;
 auto ms = millis();
 auto ms1 = millis();
 
@@ -42,14 +44,28 @@ char echo_org_ssl_ca_cert[] PROGMEM =
     "Dfvp7OOGAN6dEOM4+qR9sdjoSYKEBpsr6GtPAQw4dy753ec5\n"
     "-----END CERTIFICATE-----\n";
 
+void disp(String s) {
+  display.println(s);
+  display.display();
+}
+
+void cdisp(String s) {
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  disp(s);
+}
+
 void scanWifi() {
   Serial.println("Scanning...");
+  cdisp("~scan");
   int n = WiFi.scanNetworks();
   if (n == 0) {
     Serial.println("no networks found");
+    cdisp("-scan");
   } else {
     Serial.print(n);
     Serial.println(" networks found");
+    cdisp("+scan");
     for (int i = 0; i < n; ++i) {
       Serial.print(i);
       Serial.print(": ");
@@ -64,6 +80,7 @@ void scanWifi() {
 
 void connWifi() {
   Serial.print("Connecting wifi...");
+  cdisp("~wifi");
 #ifdef PERSONAL
   WiFi.begin(EAP_SSID, EAP_PASSWORD);
 #else
@@ -81,17 +98,7 @@ void connWifi() {
   }
   Serial.print("\nConnected wifi @ ");
   Serial.println(WiFi.localIP());
-}
-
-void connSock() {
-  client = {};
-  client.setCACert(echo_org_ssl_ca_cert);
-  bool conn = false;
-  while (!conn) {
-    Serial.println("connecting socket...");
-    conn = client.connect("wss://fth.fly.dev/ws");
-  }
-  Serial.println("socket connected");
+  cdisp("+wifi");
 }
 
 void onMessageCB(websockets::WebsocketsMessage msg) {
@@ -101,8 +108,8 @@ void onMessageCB(websockets::WebsocketsMessage msg) {
   vpow = obj["pow"].as<int>();
   Serial.print("pow ");
   Serial.println(vpow);
-  if (vpow > 0) busy = true;
   ms1 = millis();
+  if (vpow > 0) busy = true;
 }
 
 void onEventCB(websockets::WebsocketsEvent ev, String data) {
@@ -110,25 +117,42 @@ void onEventCB(websockets::WebsocketsEvent ev, String data) {
     Serial.println("socket opened");
   } else if (ev == websockets::WebsocketsEvent::ConnectionClosed) {
     Serial.println("socket closed");
+    cdisp("-sock");
+    delay(500);
     ESP.restart();
   }
+}
+
+void connSock() {
+  client = {};
+  client.setCACert(echo_org_ssl_ca_cert);
+  bool conn = false;
+  while (!conn) {
+    Serial.println("connecting socket...");
+    display.println("~sock");
+    conn = client.connect("wss://fth.fly.dev/ws");
+  }
+  client.onEvent(onEventCB);
+  client.onMessage(onMessageCB);
+  Serial.println("socket connected");
+  cdisp("+sock");
 }
 
 void loop0(void* params) {
   while (1) {
     if (busy) {
-      int p1 = max(1, 5 - vpow / 5);
-      int p2 = 180 - max(0, (vpow - 50) * 9 / 5);
+      int p1 = 5;
+      int p2 = max(1, vpow / 10);
       Serial.print(p1);
       Serial.print(" ");
       Serial.print(p2);
-      Serial.println("busy");
-      while (servos[0].pos < p2) {
-        for (auto& servo : servos) servo.inc();
+      Serial.println(" busy");
+      while (servos[0].pos < 180) {
+        for (auto& servo : servos) servo.inc(p2);
         delay(p1);
       }
       while (servos[0].pos > 0) {
-        for (auto& servo : servos) servo.dec();
+        for (auto& servo : servos) servo.dec(p2);
         delay(p1);
       }
       busy = false;
@@ -142,13 +166,17 @@ void setup() {
   Serial.begin(115200);
   delay(10);
 
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3d);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+
   WiFi.mode(WIFI_STA);
   WiFi.disconnect(true);
   // scanWifi();
   connWifi();
   connSock();
-  client.onEvent(onEventCB);
-  client.onMessage(onMessageCB);
 
   for (auto& servo : servos) servo.init();
 
@@ -166,12 +194,15 @@ void loop() {
     ms = cms;
     if (WiFi.status() != WL_CONNECTED) {
       Serial.println("wifi disconnected");
+      cdisp("-wifi");
+      delay(500);
       ESP.restart();
     }
   }
   if (cms - ms1 >= 10000) {
     ms1 = cms;
     Serial.println("ping");
+    cdisp("ping");
     client.send("ping");
   }
 }
