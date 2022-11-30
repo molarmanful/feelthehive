@@ -108,6 +108,10 @@ void onMessageCB(websockets::WebsocketsMessage msg) {
   vpow = obj["pow"].as<int>();
   Serial.print("pow ");
   Serial.println(vpow);
+  if (!busy) {
+    cdisp("pow");
+    disp(String(vpow));
+  }
   ms1 = millis();
   if (vpow > 0) busy = true;
 }
@@ -168,7 +172,7 @@ void setup() {
 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3d);
   display.clearDisplay();
-  display.setTextSize(1);
+  display.setTextSize(2);
   display.setTextColor(WHITE);
   display.setCursor(0, 0);
 
