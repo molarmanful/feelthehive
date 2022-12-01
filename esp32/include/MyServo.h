@@ -14,13 +14,12 @@ class MyServo {
     servo.write(0);
   }
 
-  void inc(int n = 1) {
-    pos = min(pos + n, 180);
+  void setPos(int n) {
+    pos = max(min(n, 180), 0);
     servo.write(pos);
   }
 
-  void dec(int n = 1) {
-    pos = max(pos - n, 0);
-    servo.write(pos);
-  }
+  void inc(int n = 1) { setPos(pos + n); }
+
+  void dec(int n = 1) { setPos(pos - n); }
 };
