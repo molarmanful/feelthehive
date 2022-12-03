@@ -7,7 +7,7 @@ export default class Ring {
 
   push(x = 300) {
     this.queue.push(x)
-    while (this.queue.length > this.max) this.shift()
+    while (this.queue.length > this.max) this.queue.shift()
   }
 
   dec() {
