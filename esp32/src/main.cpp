@@ -145,7 +145,7 @@ void connSock() {
 void loop0(void* params) {
   while (1) {
     if (busy) {
-      int p1 = 5;
+      int p1 = 6 - min(0, vpow - 50) / 10;
       int p2 = max(1, vpow / 10);
       Serial.print(p1);
       Serial.print(" ");
