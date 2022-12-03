@@ -55,15 +55,13 @@ server.get('/ws', { websocket: true }, (conn, req) => {
         ring.push()
         shoutInfo(conn)
         cdown = true
-        setTimeout(_ => cdown = false, 10)
+        setTimeout(_ => cdown = false, 100)
       }
       else if (msg == 'ping') {
         shoutInfo(conn)
       }
     }
   })
-
-  conn.socket.on('ping', _ => { conn.socket.send('pong') })
 
   conn.socket.on('close', _ => {
     console.log('-conn')
