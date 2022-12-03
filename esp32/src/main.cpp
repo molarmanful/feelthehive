@@ -10,6 +10,7 @@ bool busy = false;
 int vpow = 0;
 auto ms = millis();
 auto ms1 = millis();
+auto ms2 = millis();
 
 char echo_org_ssl_ca_cert[] PROGMEM =
     "-----BEGIN CERTIFICATE-----\n"
@@ -102,13 +103,13 @@ void connWifi() {
 }
 
 void onMessageCB(websockets::WebsocketsMessage msg) {
-  auto data = msg.data();
-  deserializeJson(doc, data);
-  auto obj = doc.as<JsonObject>();
-  vpow = obj["pow"].as<int>();
-  Serial.print("pow ");
-  Serial.println(vpow);
   if (!busy) {
+    auto data = msg.data();
+    deserializeJson(doc, data);
+    auto obj = doc.as<JsonObject>();
+    vpow = obj["pow"].as<int>();
+    Serial.print("pow ");
+    Serial.println(vpow);
     cdisp("pow");
     disp(String(vpow));
   }
@@ -145,13 +146,18 @@ void connSock() {
 void loop0(void* params) {
   while (1) {
     if (busy) {
-      int p1 = 6 - min(0, vpow - 50) / 10;
-      int p2 = max(1, vpow / 10);
+      // int p1 = min(3, 5 - max(0, vpow - 50) / 10);
+      int p1 = 5;
+      int p2 = min(3, max(1, vpow / 10));
+      int p3 = 180 - max(0, vpow - 50) * 9 / 5;
       Serial.print(p1);
       Serial.print(" ");
       Serial.print(p2);
+      Serial.print(" ");
+      Serial.print(p3);
+      Serial.print(" ");
       Serial.println(" busy");
-      while (servos[0].pos < 180) {
+      while (servos[0].pos < p3) {
         for (auto& servo : servos) servo.inc(p2);
         delay(p1);
       }
@@ -191,9 +197,13 @@ void loop() {
   // for (auto& servo : servos) servo.servo.write(0);
   // if (!busy) busy = true;
 
-  client.poll();
-
   auto cms = millis();
+  if (cms - ms2 >= 100) {
+    ms2 = cms;
+    client.poll();
+  }
+
+  cms = millis();
   if (cms - ms >= 500) {
     ms = cms;
     if (WiFi.status() != WL_CONNECTED) {
