@@ -148,6 +148,7 @@ void loop0(void* params) {
     if (busy) {
       // int p1 = min(3, 5 - max(0, vpow - 50) / 10);
       int p1 = 5;
+      // int p2 = min(5, max(1, vpow / 10));
       int p2 = min(3, max(1, vpow / 10));
       int p3 = 180 - max(0, vpow - 50) * 9 / 5;
       Serial.print(p1);
