@@ -50,13 +50,18 @@ server.get('/ws', { websocket: true }, (conn, req) => {
     shoutInfo(conn)
   })
 
+  let cdown = false
   conn.socket.on('message', msg => {
-    if (msg == 'scratch') {
-      ring.push()
-      shoutInfo(conn)
-    }
-    else if (msg == 'ping') {
-      shoutInfo(conn)
+    if (!cdown) {
+      if (msg == 'scratch') {
+        ring.push()
+        shoutInfo(conn)
+        cdown = true
+        setTimeout(_ => cdown = false, 10)
+      }
+      else if (msg == 'ping') {
+        shoutInfo(conn)
+      }
     }
   })
 
