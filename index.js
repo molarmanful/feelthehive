@@ -25,8 +25,13 @@ let info = new Proxy({
   }
 })
 
+let cdown = false
 let shoutInfo = conn => {
-  conn.socket.send(JSON.stringify(info))
+  if (!cdown) {
+    conn.socket.send(JSON.stringify(info))
+    cdown = true
+    setTimeout(_ => cdown = false, 10)
+  }
 }
 
 let shoutUser = conn => {
