@@ -26,9 +26,7 @@ let info = new Proxy({
 })
 
 let shoutInfo = conn => {
-  if (!cdown) {
-    conn.socket.send(JSON.stringify(info))
-  }
+  conn.socket.send(JSON.stringify(info))
 }
 
 let shoutUser = conn => {
