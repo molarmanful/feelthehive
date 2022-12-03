@@ -25,12 +25,9 @@ let info = new Proxy({
   }
 })
 
-let cdown = false
 let shoutInfo = conn => {
   if (!cdown) {
     conn.socket.send(JSON.stringify(info))
-    cdown = true
-    setTimeout(_ => cdown = false, 10)
   }
 }
 
