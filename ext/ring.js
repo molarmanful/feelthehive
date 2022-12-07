@@ -7,7 +7,7 @@ export default class Ring {
 
   push(x = 300) {
     this.queue.push(x)
-    while (this.queue.length > this.max) this.queue.shift()
+    while (this.over()) this.queue.shift()
   }
 
   dec() {
@@ -17,5 +17,7 @@ export default class Ring {
   prune() {
     this.queue = this.queue.filter(x => x)
   }
+
+  over() { return this.queue.length > this.max }
 
 }

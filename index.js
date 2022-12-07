@@ -49,11 +49,15 @@ server.get('/ws', { websocket: true }, (conn, req) => {
   })
 
   let cdown = false
+  let maxdown = false;
   conn.socket.on('message', msg => {
     if (!cdown) {
       if (msg == 'scratch') {
         ring.push()
-        shoutInfo(conn)
+        if (!maxdown || ring.queue.length < ring.max) {
+          shoutInfo(conn)
+          maxdown = ring.queue.length >= ring.max
+        }
         cdown = true
         setTimeout(_ => cdown = false, 100)
       }
