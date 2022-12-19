@@ -10,11 +10,11 @@ html
 
   body
     #app.unloaded
-      .header(:class='{hide: clicked}')
+      .header(:class='[clicked ? "hide" : "show"]')
         h1 Welcome!
         p Someone on the other side of the internet needs you to scratch their back.
       #scratch.shake-constant(:class='{"shake-little": power >= 20 && power < 50, "shake": power >= 50 && power < 70, "shake-hard": power >= 70 && power < 90, "shake-crazy": power >= 90}')
-        p(:class='{hide: clicked}') Tap Screen / Mash Spacebar to
+        p(:class='[clicked ? "hide" : "show"]') Tap Screen / Mash Spacebar to
         |{{conn ? 'SCRATCH' : '(RECONNECTING...)'}}
         p Power Level: {{power}}{{power >= 90 ? '!!!' : power >= 70 ? '!!' : power >= 50 ? '!' : power >= 20 ? '?' : ''}}
       p.shake-constant(:class='{"shake-little": power >= 50, "shake-opacity": power >= 90}') You are scratching this person's back with {{Math.max(0, clients - 1)}} other stranger{{clients == 2 ? '' : 's'}}.

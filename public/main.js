@@ -57,6 +57,7 @@ Vue.createApp({
       this.pcd = setTimeout(_ => {
         console.log('ping')
         ws.send('ping')
+        this.clicked = false
       }, 10000)
     },
 
